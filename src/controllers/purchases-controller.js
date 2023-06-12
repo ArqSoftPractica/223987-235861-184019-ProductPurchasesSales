@@ -3,10 +3,10 @@ const express   = require('express');
 const Router    = express.Router();
 const RestError = require('./rest-error');
 const PurchaseRepository = require('../repositories/purchase-repository');
-const CompanyRepository = require('../repositories/company-repository');
+//const CompanyRepository = require('../repositories/company-repository');
 const ProductRepositroy = require('../repositories/product-repository');
 const ProductPurchaseRepository = require('../repositories/productPurchase-repository');
-const ProviderRepository = require('../repositories/provider-repository');
+//const ProviderRepository = require('../repositories/provider-repository');
 const Bull = require('bull');
 const {notificationType} = require('../constants')
 var logger = require("../logger/systemLogger")
@@ -14,11 +14,11 @@ var logger = require("../logger/systemLogger")
 module.exports = class purchaseController {
     constructor() {
         this.purchaseRepository = new PurchaseRepository();
-        this.companyRepository = new CompanyRepository();
+        //this.companyRepository = new CompanyRepository();
         this.productRepository = new ProductRepositroy();
         this.productPurchaseRepository = new ProductPurchaseRepository();
-        this.providerRepository = new ProviderRepository();
-        this.productEventNotification = new Bull("product-event-notification", process.env.REDIS_URL);
+        //this.providerRepository = new ProviderRepository();
+        //this.productEventNotification = new Bull("product-event-notification", process.env.REDIS_URL);
     }
 
     async createPurchase(req, res, next) {
@@ -37,7 +37,7 @@ module.exports = class purchaseController {
                 return next(new RestError('productsPurchased required. You need to send an array of products please.', 400));    
             }
 
-            let company = await this.companyRepository.getCompany(req.user.companyId)
+    //let company = await this.companyRepository.getCompany(req.user.companyId)
 
             if (!company) {
                 return next(new RestError('Company doesn\'t exist.', 404));   

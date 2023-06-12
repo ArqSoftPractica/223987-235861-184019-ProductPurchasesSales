@@ -2,12 +2,10 @@ const express   = require('express');
 const Router    = express.Router();
 const RestError = require('./rest-error');
 const ProductRepository = require('../repositories/product-repository');
-const ProductSubscriptionRepository = require('../repositories/productSubscription-repository');
 
 module.exports = class productController {
     constructor() {
         this.productRepository = new ProductRepository();
-        this.productSubscriptionRepository = new ProductSubscriptionRepository();
     }
 
     async createProduct(req, res, next) {
@@ -73,50 +71,6 @@ module.exports = class productController {
             let product = await this.productRepository.editProduct(id, body);
             
             res.json(product);
-        } catch (err) {
-            this.handleRepoError(err, next)
-        }
-    }
-
-    async upsertProductSubscription(req, res, next) {
-        try {
-            const productId = req.params.id;
-            const userId = req.user.id;
-            const prodSubscription = await this.productSubscriptionRepository.upsertProductSubscription(
-                productId, 
-                userId, 
-                req.body.productBought ?? false,
-                req.body.productSold ?? false,
-                req.body.noStock ?? false,
-            );
-            
-            res.status(200);
-            res.json(prodSubscription);
-        } catch (err) {
-            this.handleRepoError(err, next)
-        }
-    }
-
-    async getProductSubscription(req, res, next) {
-        try {
-            const productId = req.params.id;
-            const userId = req.user.id;
-            const productSubscription = await this.productSubscriptionRepository.getProductSubscription(productId, userId);
-            res.status(productSubscription);
-            return res.json();
-        } catch (err) {
-            this.handleRepoError(err, next)
-        }
-    }
-
-    async unSubscribeUserToProduct(req, res, next) {
-        try {
-            const productId = req.params.id;
-            const userId = req.user.id;
-            await this.productSubscriptionRepository.deleteProductSubscription(productId, userId);
-            
-            res.status(204);
-            res.json();
         } catch (err) {
             this.handleRepoError(err, next)
         }

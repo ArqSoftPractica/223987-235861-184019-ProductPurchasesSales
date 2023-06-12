@@ -14,7 +14,4 @@ Router.get('/products/:id', verifyToken, verifyPermission(constants.roles.all), 
 Router.delete('/products/:id', verifyToken, verifyPermission(), (req, res, next) => productController.deactivateProduct(req, res, next));
 Router.put('/products/:id', verifyToken, verifyPermission(), (req, res, next) => productController.editProduct(req, res, next));
 
-Router.post('/products/subscribe/:id', verifyToken, verifyPermission(), (req, res, next) => productController.upsertProductSubscription(req, res, next));
-Router.get('/products/subscribe/:id', verifyToken, verifyPermission(), (req, res, next) => productController.getIfSuscribedToProduct(req, res, next));
-
 module.exports = Router
