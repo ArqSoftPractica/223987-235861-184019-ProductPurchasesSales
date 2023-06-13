@@ -12,6 +12,8 @@ const sale = require('./src/routes/sale');
 const purchase = require('./src/routes/purchase');
 const health = require('./src/routes/health');
 
+var logger = require("./src/logger/systemLogger")
+
 app.use(cors())
 
 app.use(product)

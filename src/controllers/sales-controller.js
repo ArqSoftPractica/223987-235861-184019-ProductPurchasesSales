@@ -6,7 +6,7 @@ const Bull = require('bull');
 const SaleRepository = require('../repositories/sale-repository');
 const ProductRepositroy = require('../repositories/product-repository');
 const ProductSaleRepository = require('../repositories/productSale-repository');
-//const CompanyRepository = require('../repositories/company-repository');
+const CompanyRepository = require('../repositories/company-repository');
 const {notificationType} = require('../constants')
 var logger = require("../logger/systemLogger")
 const schedule = require('node-schedule');
@@ -17,9 +17,9 @@ module.exports = class saleController {
         this.productRepository = new ProductRepositroy();
         this.saleRepository = new SaleRepository();
         this.productSaleRepository = new ProductSaleRepository();
-        //this.comanyRepository = new CompanyRepository();
-       // this.salesQueue = new Bull("sale-queue", process.env.REDIS_URL);
-        //this.productEventNotification = new Bull("product-event-notification", process.env.REDIS_URL);
+        this.comanyRepository = new CompanyRepository();
+        this.salesQueue = new Bull("sale-queue", process.env.REDIS_URL);
+        this.productEventNotification = new Bull("product-event-notification", process.env.REDIS_URL);
     }
 
     async executeSaleJob(body, companyId) {
