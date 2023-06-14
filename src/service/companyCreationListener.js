@@ -1,5 +1,5 @@
 require('dotenv').config({ path: `${__dirname}/.env.${process.env.NODE_ENV}` });
-const sqs = require('./snsService')
+const sqs = require('./sqsService')
 var logger = require("../logger/systemLogger");
 const CompanyRepository = require('../repositories/company-repository');
 const companyRepository = new CompanyRepository();

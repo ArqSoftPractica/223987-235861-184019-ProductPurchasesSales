@@ -13,6 +13,8 @@ const purchase = require('./src/routes/purchase');
 const health = require('./src/routes/health');
 
 var logger = require("./src/logger/systemLogger")
+var companyEventListener = require("./src/service/companyCreationListener");
+var providerEventListener = require("./src/service/providerEventListener");
 
 app.use(cors())
 
@@ -44,6 +46,14 @@ const server = app.listen(process.env.PORT ?? 3000, function(){
     const logText = `Listening to port ${process.env.PORT ?? 3000}`
     logger.logInfo(logText)
 });
+
+(async() => {
+  await companyEventListener();
+})();
+
+(async() => {
+  await providerEventListener();
+})();
 
 
 module.exports = server;

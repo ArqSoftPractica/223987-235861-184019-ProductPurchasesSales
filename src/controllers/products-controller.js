@@ -1,8 +1,11 @@
 const express   = require('express');
 const Router    = express.Router();
+const sns = require('../service/snsService');
+const crypto = require('crypto');
 const RestError = require('./rest-error');
 const ProductRepository = require('../repositories/product-repository');
 const { eventMessageType } = require('../constants')
+const logger = require('../logger/systemLogger')
 
 module.exports = class productController {
     constructor() {
@@ -101,7 +104,7 @@ module.exports = class productController {
                 }
             });
         } catch (err) {
-            logger.logError(`Error publishing provider`, err)
+            logger.logError(`Error publishing product`, err)
         }
     }
 
