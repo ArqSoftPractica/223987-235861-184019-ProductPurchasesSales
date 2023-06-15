@@ -11,6 +11,7 @@ const product = require('./src/routes/product');
 const sale = require('./src/routes/sale');
 const purchase = require('./src/routes/purchase');
 const health = require('./src/routes/health');
+const awsUpdate = require('./src/routes/awsUpdate');
 
 var logger = require("./src/logger/systemLogger")
 var companyEventListener = require("./src/service/companyCreationListener");
@@ -22,6 +23,7 @@ app.use(product)
 app.use(purchase)
 app.use(sale)
 app.use(health)
+app.use(awsUpdate)
 
 dbconnection.sequelize.sync()
   .then(() => {
