@@ -44,6 +44,7 @@ const providerEventListener = async () => {
         }
     } catch (err) {
         logger.logError('Error Receiving Company QUEUE', err);
+        await new Promise(resolve => setTimeout(resolve, 300000));
     }
     providerEventListener();
 }
