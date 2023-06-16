@@ -12,5 +12,6 @@ Router.post('/sales', verifyToken, verifyPermission([constants.roles.employee]),
 Router.get('/sales', verifyToken, verifyPermission([constants.roles.employee]), (req, res, next) => salesController.getSales(req, res, next));
 Router.get('/sales/:id', verifyToken, verifyPermission([constants.roles.employee]), (req, res, next) => salesController.getSale(req, res, next));
 Router.get('/productSales', verifyToken, verifyPermission([constants.roles.employee]), (req, res, next) => salesController.getProductSaleFromCompanyForRange(req, res, next));
+Router.get('/companySales', verifyToken, verifyPermission([constants.roles.employee]), (req, res, next) => salesController.getSalesByCompanyWithSaleProducts(req, res, next));
 
 module.exports = Router
