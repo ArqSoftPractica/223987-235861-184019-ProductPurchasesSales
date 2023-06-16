@@ -14,8 +14,8 @@ const health = require('./src/routes/health');
 const awsUpdate = require('./src/routes/awsUpdate');
 
 var logger = require("./src/logger/systemLogger")
-var companyEventListener = require("./src/service/companyCreationListener");
-var providerEventListener = require("./src/service/providerEventListener");
+var { companyCreationListener } = require("./src/service/companyCreationListener");
+var { providerEventListener } = require("./src/service/providerEventListener");
 
 app.use(cors())
 
@@ -50,7 +50,7 @@ const server = app.listen(process.env.PORT ?? 3000, function(){
 });
 
 (async() => {
-  await companyEventListener();
+  await companyCreationListener();
 })();
 
 (async() => {
