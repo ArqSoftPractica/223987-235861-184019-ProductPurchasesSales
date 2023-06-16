@@ -5,7 +5,7 @@ const ProviderRepository = require('../repositories/provider-repository');
 const providerRepository = new ProviderRepository();
 
 var queueURL = process.env.SQS_PROVIDER_QUEUE_URL;
-
+var providerQueueServiceIsActive = {isActive: false}
 var params = {
     AttributeNames: ["SentTimestamp"],
     MaxNumberOfMessages: 10,
@@ -18,6 +18,7 @@ var params = {
 const providerEventListener = async () => {
     try {
         const sqsResponse = await sqs.receiveMessage(params).promise()
+        providerQueueServiceIsActive.isActive = true;
         if (sqsResponse && sqsResponse.Messages) {
             sqsResponse.Messages.forEach(async (messageGotten) => {
                             try {
@@ -35,18 +36,23 @@ const providerEventListener = async () => {
                                         await sqs.deleteMessage(deleteParams).promise();
                                     } catch (err) {
                                         logger.logError('Error Deleting Message from Company QUEUE', err)
+                                        providerQueueServiceIsActive.isActive = false;
+                                        await new Promise(resolve => setTimeout(resolve, 300000));
                                     }
                                 }
                             } catch (err) {
                                 logger.logError("Error creating company In Provider Service", err);
+                                providerQueueServiceIsActive.isActive = false;
+                                await new Promise(resolve => setTimeout(resolve, 300000));
                             }
                         });
         }
     } catch (err) {
         logger.logError('Error Receiving Company QUEUE', err);
+        providerQueueServiceIsActive.isActive = false;
         await new Promise(resolve => setTimeout(resolve, 300000));
     }
     providerEventListener();
 }
 
-module.exports = providerEventListener
+module.exports = { providerEventListener, providerQueueServiceIsActive }

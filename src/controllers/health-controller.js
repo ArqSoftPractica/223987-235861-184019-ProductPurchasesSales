@@ -3,6 +3,8 @@ const version = require('../../package.json').version;
 const RestError = require('./rest-error');
 const dbConnection = require('../db/connection/connection')
 const redisConnection = require('../db/connection/redis-connection')
+const {companyQueueServiceIsActive} = require('../service/companyCreationListener')
+const {providerQueueServiceIsActive} = require('../service/providerEventListener')
 
 module.exports = class HealthController {
     constructor() {}
@@ -16,6 +18,8 @@ module.exports = class HealthController {
                 available: true,
                 dbConnection: !dbError,
                 redisConnection: isRedisConnected,
+                companyQueueServiceIsActive: companyQueueServiceIsActive.isActive,
+                providerQueueServiceIsActive: providerQueueServiceIsActive.isActive,
                 version: version
             }
             res.json(health);
