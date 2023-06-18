@@ -8,7 +8,12 @@ const verifyRole = require('../authorization/role-check');
 const verifyRoleTest = require('../authorization/verify-role-test');
 
 Router.use(express.json());
-
+Router.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers','Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-api-key');
+    res.setHeader('Content-Type', 'application/json');
+    next(); 
+});
 Router.post('/purchases', verifyToken, verifyRole(), (req, res, next) => purchaseController.createPurchase(req, res, next));
 Router.get('/purchases', verifyToken, verifyRole(), (req, res, next) => purchaseController.getPurchases(req, res, next));
 Router.get('/purchases/:id', verifyToken, verifyRole(), (req, res, next) => purchaseController.getPurchase(req, res, next));

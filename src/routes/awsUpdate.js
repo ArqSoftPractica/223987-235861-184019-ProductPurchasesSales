@@ -6,7 +6,12 @@ const sqsService = require('../service/sqsService');
 const snsService = require('../service/snsService');
 
 Router.use(express.json());
-
+Router.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers','Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-api-key');
+    res.setHeader('Content-Type', 'application/json');
+    next(); 
+});
 Router.post('/awsUpdate', verifyToken, verifyMasterRole(), (req, res, next) => {
     if (!req.body) {
         return next(new RestError('Please send data keys in the body', 400));  
