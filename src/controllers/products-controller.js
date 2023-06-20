@@ -1,0 +1,120 @@
+const express   = require('express');
+const Router    = express.Router();
+const sns = require('../service/snsService');
+const crypto = require('crypto');
+const RestError = require('./rest-error');
+const ProductRepository = require('../repositories/product-repository');
+const { eventMessageType } = require('../constants')
+const logger = require('../logger/systemLogger')
+
+module.exports = class productController {
+    constructor() {
+        this.productRepository = new ProductRepository();
+    }
+
+    async createProduct(req, res, next) {
+        try {
+            req.body.companyId = req.user.companyId;
+            let productCreated = await this.productRepository.createProduct(req.body);
+            this.sendBroadcast(productCreated, eventMessageType.create);
+            res.json(productCreated);
+        } catch (err) {
+            this.handleRepoError(err, next)
+        }
+    }
+
+    async getProduct(req, res, next) {
+        const id = req.params.id;
+        if (!id) {
+            return next(new RestError('id required', 400));    
+        }
+
+        try {
+            let product = await this.productRepository.getProduct(id, req.user?.companyId);
+            if (product) {
+                res.json(product);
+            } else {
+                next(new RestError(`product not found`, 404));    
+            }
+        } catch (err) {
+            this.handleRepoError(err, next)
+        }
+    }
+
+    async getProducts(req, res, next) {
+        try {
+            let queryParams = {};
+            if (req.query.isActive) {
+                queryParams['isActive'] = req.query.isActive == 'true'
+            }
+
+            let products = await this.productRepository.getProducts(queryParams, req?.user?.companyId);
+            
+            res.json(products);
+        } catch (err) {
+            this.handleRepoError(err, next)
+        }
+    }
+
+    async editProduct(req, res, next) {
+        try {
+            const id = req.params.id;
+            req.body.companyId = req.user.companyId;
+            let product = await this.productRepository.editProduct(id, req.body);
+            this.sendBroadcast(product, eventMessageType.edit);
+            res.json(product);
+        } catch (err) {
+            this.handleRepoError(err, next)
+        }
+    }
+
+    async deactivateProduct(req, res, next) {
+        try {
+            const id = req.params.id;
+            const body = {isActive: false, companyId: req.user?.companyId}
+            let product = await this.productRepository.editProduct(id, body);
+            this.sendBroadcast(product, eventMessageType.edit);
+            res.json(product);
+        } catch (err) {
+            this.handleRepoError(err, next)
+        }
+    }
+
+    async sendBroadcast(objectToBroadcast, eventMessageType) {
+        try {
+            let messageString = JSON.stringify(objectToBroadcast)
+            var params = {
+                MessageAttributes: {
+                    EventMessageType: {
+                      DataType: "String",
+                      StringValue: eventMessageType
+                    }
+                },
+                Message: messageString,
+                MessageGroupId: crypto.randomUUID(),
+                MessageDeduplicationId: crypto.randomUUID(),
+                TopicArn: process.env.PRODUCT_TOPIC_BROADCAST_ARN
+            };
+
+            sns.publish(params, function(err, data) {
+                if (err) {
+                    logger.logError(`Error publishing ${messageString}`, err)
+                } else {
+                    console.log("Success", data);
+                }
+            });
+        } catch (err) {
+            logger.logError(`Error publishing product`, err)
+        }
+    }
+
+    async handleRepoError(err, next) {
+        //error de base de datos.
+        let http_code = (err.code == 11000)?409:400;
+        let errorDesription = err.message
+        if (err.errors && err.errors.length > 0 && err.errors[0].message) {
+            errorDesription = err.errors[0].message
+        }
+        return next(new RestError(errorDesription, http_code));
+    }
+}
